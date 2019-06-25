@@ -1,21 +1,36 @@
 <?php
 
-$query = $_SERVER['QUERY_STRING'];
+$query = $_SERVER['REQUEST_URI'];
+
+define('WWW', __DIR__);
+define('CORE', dirname(__DIR__). '/vendor/core');
+define('ROOT', dirname(__DIR__));
+define('APP', dirname(__DIR__).'/app');
+
 
 require '../vendor/core/Router.php';
 
-Router::add('/posts/add',['controller'=>'Posts','action'=>'add']);
-Router::add('/posts',['controller'=>'Posts','action'=>'index']);
-Router::add('',['controller'=>'Main','action'=>'index']);
+
+spl_autoload_register(function ($class){
+    $file = APP ."/controllers/$class.php";
+    var_dump($class);
+    if(is_file($file)){
+        require_once $file;
+    }
+});
 
 
-var_dump(Router::getRoutes());
 
-if(Router::matchRoute($query)) {
-    var_dump(Router::getRout());
-}else{
-    echo "404";
-}
+Router::add('^$',['controller'=>'Main','action'=>'index']);
+Router::add('([a-z-]+)/([a-z-]+)');
+
+
+
+
+\vendor\core\Router::dispatch($query);
+
+
+
 ?>
 <html>
   <head>
